@@ -12,4 +12,5 @@ export const toAuthenticatedUser = (
   tenantId: user.tenantId,
   tenantName: user.tenant.name,
   roleName: user.role.name,
+  emailVerified: user.emailVerified,
 });

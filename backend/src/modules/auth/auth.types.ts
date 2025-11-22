@@ -16,6 +16,7 @@ export type AuthTokenPayload = {
   userId: string;
   tenantId: string;
   roleName: string;
+  emailVerified: boolean;
 };
 
 export type AuthenticatedUser = {
@@ -26,6 +27,7 @@ export type AuthenticatedUser = {
   tenantId: string;
   tenantName: string;
   roleName: string;
+  emailVerified: boolean;
 };
 
 export type AuthResponse = {
@@ -37,4 +39,5 @@ export type AuthResponse = {
     createdAt: Date;
     updatedAt: Date;
   };
+  emailVerificationToken?: string;
 };

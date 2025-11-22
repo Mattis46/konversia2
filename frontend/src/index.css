@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 223 34% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 223 34% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 223 34% 12%;
+  --primary: 217 92% 60%; /* sanftes, modernes Blau */
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 97%;
+  --secondary-foreground: 223 34% 12%;
+  --muted: 210 30% 96%;
+  --muted-foreground: 220 15% 45%;
+  --accent: 190 80% 50%; /* leichter Türkis-Akzent */
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 70% 55%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 214 32% 90%;
+  --input: 214 32% 90%;
+  --ring: 217 92% 60%;
+  --radius: 0.75rem;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: "Inter", "Manrope", system-ui, -apple-system, sans-serif;
+}
+
+.container {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}

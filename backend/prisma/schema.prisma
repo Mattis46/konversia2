@@ -12,6 +12,13 @@ model Tenant {
   users     User[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  bots           Bot[]
+  channels       Channel[]
+  contacts       Contact[]
+  conversations  Conversation[]
+  botFaqs        BotFaq[]
+  botProfiles    BotProfile[]
 }
 
 model Role {
@@ -32,6 +39,150 @@ model User {
   roleId       String
   tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   role         Role     @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  emailVerified   Boolean  @default(false)
+  emailVerifiedAt DateTime?
+
+  passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+}
+
+enum ChannelType {
+  WEBSITE
+  WHATSAPP
+  EMAIL
+  INSTAGRAM
+  FACEBOOK
+  GOOGLE_BUSINESS
+}
+
+enum ConversationStatus {
+  OPEN
+  RESOLVED
+  ESCALATED
+}
+
+enum MessageSenderType {
+  CUSTOMER
+  BOT
+  AGENT
+}
+
+model Bot {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  channels      Channel[]
+  conversations Conversation[]
+  faqs          BotFaq[]
+  profiles      BotProfile[]
+}
+
+model Channel {
+  id        String      @id @default(cuid())
+  tenantId  String
+  tenant    Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  botId     String
+  bot       Bot         @relation(fields: [botId], references: [id], onDelete: Cascade)
+  type      ChannelType
+  name      String
+  config    Json
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  conversations Conversation[]
+}
+
+model Contact {
+  id         String         @id @default(cuid())
+  tenantId   String
+  tenant     Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name       String?
+  email      String?
+  phone      String?
+  channel    ChannelType?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  conversations Conversation[]
+}
+
+model Conversation {
+  id          String             @id @default(cuid())
+  tenantId    String
+  tenant      Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  botId       String?
+  bot         Bot?               @relation(fields: [botId], references: [id])
+  channelId   String?
+  channel     Channel?           @relation(fields: [channelId], references: [id])
+  contactId   String
+  contact     Contact            @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  status      ConversationStatus @default(OPEN)
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+
+  messages    Message[]
+}
+
+model Message {
+  id             String            @id @default(cuid())
+  conversationId String
+  conversation   Conversation      @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderType     MessageSenderType
+  content        String
+  createdAt      DateTime          @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BotFaq {
+  id        String   @id @default(cuid())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model BotProfile {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  botId        String
+  bot          Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  description  String?
+  openingHours String?
+  location     String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

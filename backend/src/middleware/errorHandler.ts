@@ -14,13 +14,16 @@ export const errorHandler = (
   _next: NextFunction
 ) => {
   const statusCode = err.statusCode || err.status || 500;
-  const message = err.message || "Internal server error";
+  const isServerError = statusCode >= 500;
+  const message = isServerError
+    ? "An unexpected error occurred. Please try again later."
+    : err.message || "Bad request";
 
   // Log minimal info to avoid leaking secrets while still aiding debugging.
-  console.error(`[ERROR] ${message}`);
+  console.error(`[ERROR]`, err);
 
   return res.status(statusCode).json({
     message,
-    ...(err.details ? { details: err.details } : {}),
+    ...(err.details && !isServerError ? { details: err.details } : {}),
   });
 };

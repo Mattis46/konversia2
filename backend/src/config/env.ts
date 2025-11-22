@@ -7,6 +7,8 @@ type AppConfig = {
   port: number;
   databaseUrl: string;
   jwtSecret: string;
+  openAiApiKey: string;
+  jwtExpiresIn: string | number;
 };
 
 const requireEnv = (key: string): string => {
@@ -26,4 +28,7 @@ export const config: AppConfig = {
   port,
   databaseUrl: requireEnv("DATABASE_URL"),
   jwtSecret: requireEnv("JWT_SECRET"),
+  openAiApiKey:
+    process.env.NODE_ENV === "test" ? process.env.OPENAI_API_KEY ?? "" : requireEnv("OPENAI_API_KEY"),
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || "1h",
 };

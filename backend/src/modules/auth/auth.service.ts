@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 import { prisma } from "../../db/client";
 import { config } from "../../config/env";
 import {
@@ -10,8 +10,7 @@ import {
 } from "./auth.types";
 import { toAuthenticatedUser } from "../user/user.model";
 import { toPublicTenant } from "../tenant/tenant.model";
-
-const TOKEN_EXPIRATION = "7d";
+import * as emailVerificationService from "./emailVerification.service";
 
 type HttpError = Error & { statusCode?: number };
 
@@ -29,8 +28,10 @@ const upsertRole = async (name: string) => {
   });
 };
 
-const signToken = (payload: AuthTokenPayload) =>
-  jwt.sign(payload, config.jwtSecret, { expiresIn: TOKEN_EXPIRATION });
+const signToken = (payload: AuthTokenPayload) => {
+  const options: SignOptions = { expiresIn: config.jwtExpiresIn as any };
+  return jwt.sign(payload, config.jwtSecret, options);
+};
 
 // Create a new tenant with its first user (OWNER).
 export const register = async (
@@ -66,16 +67,20 @@ export const register = async (
     return { tenant, user };
   });
 
+  const emailVerificationToken = await emailVerificationService.createVerificationToken(user.id);
+
   const tokenPayload: AuthTokenPayload = {
     userId: user.id,
     tenantId: tenant.id,
     roleName: user.role.name,
+    emailVerified: user.emailVerified,
   };
 
   return {
     token: signToken(tokenPayload),
     user: toAuthenticatedUser(user),
     tenant: toPublicTenant(tenant),
+    emailVerificationToken, // for manual testing; would be emailed in production
   };
 };
 
@@ -101,6 +106,7 @@ export const login = async (input: LoginRequestBody): Promise<AuthResponse> => {
     userId: user.id,
     tenantId: user.tenantId,
     roleName: user.role.name,
+    emailVerified: user.emailVerified,
   };
 
   return {
