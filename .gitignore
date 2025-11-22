@@ -1,0 +1,15 @@
+# Node
+node_modules/
+**/node_modules/
+
+# Env-Dateien
+.env
+**/.env
+
+# Builds
+dist/
+build/
+out/
+
+# Sonstiges
+.DS_Store
